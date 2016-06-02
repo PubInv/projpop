@@ -3,18 +3,51 @@
 ;; Here I create the basic parameters.
 ;; In KMS system...
 ;; 1 kilogram
-(setq A 0.3)
+(setq A 0.1)
 
 ;; kilograms
-(setq B 0.1)
+(setq B 0.2)
  ;; 1 kilogram
 (setq C 1)
 
 
 ;; Apparently S is really irrelevant to all our math!
 ;; meters / s
-(setq S 100)
+(setq S 10)
 
+
+;; Interesting note: There are values in which the speed
+;; approaches the rocket-speed, even though we are applying
+;; energy only to B, not A + B.  For example:
+;; (A,B,C) = (0.1,0.2,1.0)
+;; Seems to have a Vc of 33 m/s, while the rocket speed is 26.23!
+;; We need to compare this to a regime of firing separately.
+;; I am not sure what this means.  I certainly
+;; believe that if we built a "multi-shot" sequence we
+;; can outdo the rocket equation!  Perhaps that is known.
+;; Perhaps it is completely revolutionary!
+
+;; TODO: Understand if this is really true and how significant it is.
+;; Question: if we imagine the first object reaceding, does this
+;; still work?  Or it is too difficult to bounce?
+
+;; I'm afraid there is now way around the fact that we need
+;; a more general physical and computational model.
+;; The basis of this one-dimenstional model could be to
+;; having a lot of objects on the track interacting.
+;; we need an function that predicts the "next" collision...
+;; But computationally this is easy because you just look
+;; at each particle up and down the track, so O(n).
+;;  
+
+;; PRORITY: Turn it better into a rocket problem.
+;; Imagine firing A backwards, and the B, and in general
+;; being able to set up a regime of masses and speeds.
+;; I predict that we will want to use smaller masses at
+;; higher speeds in the later operations.
+
+;; This would mean expanding this to have a physical state
+;; that represents many masses.
 
 
 ;; Here I create the recurrence relations as matehmatical funcions
@@ -28,6 +61,11 @@
 
 ;; Would be more elegant if A, B, C where parameters (and the table!)
 ;; Have we got any hope of a closed form solution of the number of bounces?
+;; Note: There is a sense in which it is optimal to cut the mass down
+;; so that the you just barely recover the reaction mass.
+;; It seems that an optimal situation may be a pulsed output of a
+;; heavy mass that you bounce things off until you abandon a mass,
+;; and then send out another mass.
 
 
 ;; So this is rather interesting...
