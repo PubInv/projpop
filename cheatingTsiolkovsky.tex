@@ -1,0 +1,198 @@
+\documentclass[11pt]{article}
+\usepackage{geometry} % see geometry.pdf on how to lay out the page. There's lots.
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{gensymb}
+\usepackage[affil-it]{authblk}
+\usepackage[toc,page]{appendix}
+\usepackage{pifont}
+\usepackage{amsmath}
+\usepackage{draftwatermark}
+
+\SetWatermarkText{DRAFT}
+\SetWatermarkScale{6}
+\SetWatermarkLightness{0.95}
+
+% \geometry{letter} % or letter or a5paper or ... etc
+% \geometry{landscape} % rotated page geometry
+
+% See the ``Article customise'' template for come common customisations
+
+\title{Cheating Tsiolkovsky's Equation with Highly Unrealizable Physical Approaches}
+\author{Robert L. Read
+  \thanks{read.robert@gmail.com}
+}
+\affil{Founder, Public Invention, an educational non-profit.}
+
+
+\date{\today}
+
+%%% BEGIN DOCUMENT
+\begin{document}
+
+\maketitle
+
+%% \tableofcontents
+
+\section{Introduction}
+
+Squirting a bunch of hot gases out of a rocket seems wasteful.
+Tsiolkovsky's equation:
+
+\[
+\tag{The Rocket Equation} \Delta v = v_e \ln \frac{m_0}{m_f} 
+\]
+
+is so dreary in its demand that most of a rocket be devoted to fuel
+that even its creator cheated it by inventing the multi-stage rocket.
+
+If a rocket starts in free space, 
+is it possible to build a rocket which is more efficient in power or
+conservative of propellant reaction mass by designing the form
+of the remaining propellant?
+
+\section{Conservation of Linear Momentum}
+
+Although it is promising to consider powering a rocket with a beam
+from a base station, we may be able to learn something interesting from
+considering a rocket starting in free space. After all, the base station
+itself or the planet it rests upon is simply a large object in free space.
+
+
+
+A chemical rocket in free space without gravity is a system that can't
+change its center of mass. As the rocket fires, the system spreads out
+in space, with the part be call the propellant moving in one direction
+and the rocket moving in the other.
+
+
+Since we are primarily interested in going in one direction fast, we
+can think of this as a one-dimensional problem. The fact that a cloud
+of gas spreads a little from our single axis is an unfortunate inefficiency.
+
+Conservation of linear moment applies to whatever form the propellant takes.
+If $P_v$ is the velocity of the center of mass of the propellant (which will
+likely be negative), and $R_V$ is the velocity of the rocket:
+
+\[
+\tag{CLM} R_v = -\frac{m_P}{m_R} P_V
+\]
+
+What would happen if instead of throwing gas molecules behind ourselves
+we threw solid objects? In other words, what if we used a ``mass driver'',
+without specifying how it is powered, to throw a solid propellant?
+Could we change Tsiolkovsky's equation in some favorable way?
+
+\section{Extruded Forms}
+
+Suppose that our rocket could extrude an object extremely quickly.
+If we extruded an object in the opposite direction we wish to travel,
+by the conservation of linear momentum our rocket will move forward.
+
+\[
+\tag{Linear Extrusion} R_x - P_x  = \frac{s t}{2}
+\]
+
+
+After doing a lot of math, we determine that the speed of the rocket
+at time $t$, assume an extrusion rate of $s$ in $m /s$ and density
+of extrusion of $k$ in $kg / $ linear meter, 
+
+\[
+v_r = \frac{k s^2 t}{2 T_m}
+\]
+
+where $T_m$ is the total inital mass of the rocket and the propellant:
+
+\[
+T_m = m_R + m_P
+\]
+
+or, in terms or Tsiolkovsky's symols, $m_0 = T_m$ and $m_f = m_R$.
+
+By solving for the time it takes to use up all of the propellant and
+then substituting back into the form of the Tsiolkovsky equation:
+
+\[
+v_r = \frac{s (m_0-m_f)}{2 m_0}
+\]
+
+If we graph this against the Tsiolkovsky equation:
+
+INSERT GRAPH HERE
+
+we find that extruding a cylinder very quickly is not quite as
+good as squirting gases at the same velocity behind us.
+My interpretation of this is that being attached to the extruded
+rod during until the momenet of separation holds the rocket back,
+where as the acceleartion provided by each molecule of gas
+allows the rocket to move forward without being attached.
+
+\subsection{Develop Mathematics of Instantaneous Ejection and Relate}
+
+\section{Constant Acceleration of Cylinder}
+
+Suppose that we could extrude the rod not at a constant speed, but
+at a constant acceleration? This is physically hard to engineer,
+because as the mass of the rod behind us increases, the force required
+to sustain a constant acceleration $A$ increases. Nonetheless if we
+work out the math, we obtain:
+
+\[
+\tag{Constant Acceleration} R_x - P_x  = \frac{A t^2}{2}
+\]
+
+
+\[
+v_r = \frac{A^2 t^3 K}{m_0}
+\]
+
+...where A is the acceleration we support. If we again solve for the
+expulsion of all of the propellant, we obtain:
+
+\[
+v_r = \frac{(m_0 - m_f)^\frac{3}{2}\sqrt{\frac{A}{K}}}{m_0}
+\]
+
+This goes up as $A$ goes up, and goes up as we dedicated more mass to the propellant as we would expect.
+Note that it also goes up as $K$ the denisty of our extrusion goes down, which is perhaps interesting:
+the thinnner a rod we can extrude the more efficient our system is.
+
+NEED TO compare to Tsiolkovsky.
+
+But of course this is unrealistic in that we cannot have infinite power in our rocket.
+
+\section{Relate to A Plume of Bouncing Machines}
+
+An alternative to producing a solid plume as a single unit is to eject discrete objects.
+These objects can interact by bouncing off each other or potentially accelerating objects
+in one direction or the other.  The conservation of linear momentum remains ironclad,
+but we may now think of our rocket/propellant complex as a complicated machine which
+is working to spread itself out in space. Hopefully we are working to send as much
+mass behind us as quickly as possible.
+
+Possibly our propellant could even be complete machines with their own power supply.
+Thuse our rocket becomes a line of mass drivers spread out in space that may drive
+objects with mass towards or away from the rocket.
+
+The fact that it might be a little tricky to survice collision with or the ``catching'' and
+``rethrowing'' of these objects we will ignore for the time being.
+
+We assert that just as the Tsiolkovsky equation can be cheated by using a multi-stage
+rocket, it can also be cheated by bouncing objects around in a line, reusing reaction mass.
+This can potentially result in final propellant shape more efficient than a plume of
+gas flying through and slowly spreading through space.
+
+Even better, if one line of the mass drivers is anchored on a planet, we can
+imagine a system in which the rocket is powered from the planet, where presumably power
+is cheap, via the transfer or momentum to the rocket via objects driven to and fro from
+the rocket to the planet.
+
+\section{TODO}
+
+Fill out the math in a reasonable way.  Fill in graphs. Do dimensional analysis.
+
+
+
+
+\end{document}
