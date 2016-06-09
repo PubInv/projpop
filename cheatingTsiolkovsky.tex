@@ -58,8 +58,6 @@ from a base station, we may be able to learn something interesting from
 considering a rocket starting in free space. After all, the base station
 itself or the planet it rests upon is simply a large object in free space.
 
-
-
 A chemical rocket in free space without gravity is a system that can't
 change its center of mass. As the rocket fires, the system spreads out
 in space, with the part be call the propellant moving in one direction
@@ -70,12 +68,15 @@ Since we are primarily interested in going in one direction fast, we
 can think of this as a one-dimensional problem. The fact that a cloud
 of gas spreads a little from our single axis is an unfortunate inefficiency.
 
+We choose coordinates so that the directions we wish to go is the positive $x$ axis.
+The origin is at the center of mass of our starting machine, which includes the rocket
+and its propellant.
 Conservation of linear moment applies to whatever form the propellant takes.
-If $P_v$ is the velocity of the center of mass of the propellant (which will
-likely be negative), and $R_V$ is the velocity of the rocket:
+If $\dot{P_x}$ is the velocity of the center of mass of the propellant (which will
+likely be negative), and $\dot{R_x}$ is the velocity of the rocket:
 
 \[
-\tag{CLM} R_v = -\frac{m_P}{m_R} P_V
+\label{conslinmom} \tag{CLM} \dot{R_x}\cdot M_R = - \dot{P_x} \cdot M_P
 \]
 
 What would happen if instead of throwing gas molecules behind ourselves
@@ -99,13 +100,13 @@ at time $t$, assume an extrusion rate of $s$ in $m /s$ and density
 of extrusion of $k$ in $kg / $ linear meter, 
 
 \[
-v_r = \frac{k s^2 t}{2 T_m}
+\dot{R_x} = \frac{k s^2 t}{2 m_0}
 \]
 
-where $T_m$ is the total inital mass of the rocket and the propellant:
+where $m_0$ is the total inital mass of the rocket and the propellant:
 
 \[
-T_m = m_R + m_P
+m_0 = m_R + m_P
 \]
 
 or, in terms or Tsiolkovsky's symols, $m_0 = T_m$ and $m_f = m_R$.
@@ -142,9 +143,59 @@ work out the math, we obtain:
 \tag{Constant Acceleration} R_x - P_x  = \frac{A t^2}{2}
 \]
 
+\label{Constant Acceleration} can be differentiated:
 
 \[
-v_r = \frac{A^2 t^3 K}{m_0}
+\tag{Velocities under C.A.} \dot{R_x} - \dot{P_x}  = A \cdot t
+\]
+
+and the mass of the propellant will be:
+
+\[
+ M_P = (R_x - P_x)\cdot K \cdot 2
+\]
+
+or
+
+\[
+ M_P = A t^2 \cdot K 
+\]
+
+
+Rearranging and using \eqref{conslinmom}, we obtain:
+
+\[
+\dot{R_x}(1 + \frac{M_R}{M_P} ) = A \cdot t
+\]
+\[
+=
+\]
+\[
+\dot{R_x}(\frac{M_P + M_R}{M_P} ) = A \cdot t
+\]
+\[
+=
+\]
+\[
+\dot{R_x} = A \cdot t \cdot (\frac{M_P}{M_P + M_R} )
+\]
+\[
+=
+\]
+\[
+\dot{R_x} = A \cdot t \cdot (\frac{M_P}{m_0} )
+\]
+\[
+=
+\]
+\[
+\dot{R_x} = A \cdot t \cdot (\frac{A t^2 \cdot K }{m_0} )
+\]
+\[
+=
+\]
+\[
+\dot{R_x} = \frac{A^2 t^3 K}{m_0}
 \]
 
 ...where A is the acceleration we support. If we again solve for the
