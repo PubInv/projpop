@@ -61,13 +61,37 @@
     <div class="col-md-3">
     <button onclick="startNewGame()">Reset</button>
     </div>
-    <div class="col-md-6">
-    <button onclick="nextCollision()">Next Collision</button>
+    <div class="col-md-3">
+    <button onclick="nextInteraction()">Next Interaction</button>
     </div>
-    <div class="col-md-9">
+    <div class="col-md-3">
     <button onclick="startAnimation()">startAnimation</button>
     </div>
+    <div class="col-md-3">
+    <button onclick="stopAnimation()">stopAnimation</button>
+    </div>
 
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+    <button onclick="singleProjectile()">Single Projectile</button>
+    </div>
+    <div class="col-md-3">
+    <button onclick="startSimpleRocket()">Start Simple Rocket</button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+    Kinetic Energy: <span id="kineticenergy"> </span> Joules
+    </div>
+    <div class="col-md-3">
+    Total Energy:<span id="totalenergy"> </span> Joules
+    </div>
+    <div class="col-md-3">
+    Tsiolkovsky Speed:<span id="tsiolkovsky"> </span> m/s
+    </div>
 </div>
 
       <div  class= "row" id="playground">
@@ -97,7 +121,7 @@
 
       var physical_system;
 
-      var step_rate = 0.1; // Seconds
+      var step_rate = 0.3; // Seconds
 
 // TODO: Let's add a clock here so that we can run forward with
 // with time to make things look pretty and understand it better.
@@ -118,7 +142,7 @@ function initialThreeMassSystem() {
 		      v: 0.0,
 		      c: "cyan"},
 		   { x: 0.0,
-		     m: 0.1,
+		     m: 1.0,
 		     v: 1.0,
 		     c: "blue"},
 		   // { x: 0.8,
@@ -133,10 +157,109 @@ function initialThreeMassSystem() {
     return system;
 }
 
+// Compute Tsiolkovsky 
+function tsiolkovsky(m0,mf,ve) {
+    return ve*Math.log(m0/mf);
+}
+// This computes the Velocity of a Tsiolkovsky Rocket
+// that has Total Energy (propellant + rocket] or te
+function tsiolkovskyFromEnergy(te,m0,mf) {
+    var mp = m0 - mf;
+    var ve = Math.sqrt(2*te/
+		       (mp + mf * Math.log(m0/mf)*Math.log(m0/mf))
+		      );
+    return tsiolkovsky(m0,mf,ve);
+}
+
+function simpleRocket() {
+    var m0 = 11;
+    var mp = 1;
+    var mf = m0 - mp;
+    var system = [
+		    { x: -1.0,
+		      m: 10.0,
+		      v: 0.0,
+		      c: "cyan"},
+		   { x: 0.99,
+		     m: mp,
+		     v: 1.0,
+		     c: "blue"},
+		    { x: 1.0,
+		      m: mf,
+		      v: 0.0,
+		      c: "green"},
+    ];
+    // Now let us set the tsiolkovsky velocity in this circumstance...
+    // I think this is right, but let me do it differently
+    var ke =  computeKineticEnergy(system);
+    var rv =  tsiolkovskyFromEnergy(ke,m0,mf);
+    $("#tsiolkovsky").text(''+ parseFloat(Math.round(rv * 100) / 100).toFixed(2));
+    return system;
+}
+
+
+function simpleRocketWithVe() {
+    var m0 = 11;
+    var mp = 1;
+    var mf = m0 - mp;
+    var ve = 10.0; // m/s
+    var system = [
+		    { x: -1.0,
+		      m: 300.0,
+		      v: 0.0,
+		      c: "cyan"},
+		   { x: 0.99,
+		     m: mp,
+		     v: -ve,
+		     c: "blue"},
+		    { x: 1.0,
+		      m: mf,
+		      v: tsiolkovsky(m0,mf,ve),
+		      c: "green"},
+    ];
+    var rv = tsiolkovsky(m0,mf,ve);
+    $("#tsiolkovsky").text(''+ parseFloat(Math.round(rv * 100) / 100).toFixed(2));
+    return system;
+}
+
+
+function simpleRocketWithVe() {
+    var m0 = 11;
+    var mp = 1;
+    var mf = m0 - mp;
+    var ve = 10.0; // m/s
+    var system = [
+		    { x: -1.0,
+		      m: 300.0,
+		      v: 0.0,
+		      c: "cyan"},
+		   { x: 0.99,
+		     m: mp,
+		     v: -ve,
+		     c: "blue"},
+		    { x: 1.0,
+		      m: mf,
+		      v: tsiolkovsky(m0,mf,ve),
+		      c: "green"},
+    ];
+    var rv = tsiolkovsky(m0,mf,ve);
+    $("#tsiolkovsky").text(''+ parseFloat(Math.round(rv * 100) / 100).toFixed(2));
+    return system;
+}
 
 
 function startNewGame() {
     physical_system = initialThreeMassSystem();
+}
+
+function singleProjectile() {
+    physical_system = initialThreeMassSystem();
+    draw_system(physical_system);
+}
+
+function startSimpleRocket() {
+    physical_system = simpleRocketWithVe();
+    draw_system(physical_system);
 }
 
 // Return the list of the groups of objects
@@ -149,7 +272,7 @@ function startNewGame() {
 // TODO: This is computing a present collision, which is rather unfortunate!
 // I need to move time forward a bit after each computation to make sure collisions
 // are handeled correctly.
-function computeNextCollision(psys) {
+function computeNextInteraction(psys) {
     var collisions = [];
 
     // Since objects must remain in order
@@ -162,45 +285,16 @@ function computeNextCollision(psys) {
 	var b = psys[i+1];
 	// Note: if transit_time is not positive, there will be no collision.
 	transit_time[i] = (a.x - b.x) / (b.v - a.v);
-	console.log("tt : " + i + " : " + transit_time[i]);
     }
     // now we want to find all shortest positive transit times...
     var min_pos = transit_time.reduce(function(acc,cur,idx) {
 	return ((acc[1] < 0.0)|| ((cur < acc[1]) && (cur > 0.0) )) ? [idx,cur] : acc;
     },[0,transit_time[0]]);
 
-    console.log("min_pos : "+min_pos);
-
     return min_pos[1];
 }
 
-
-// This doesn't work at what we have
-function computeSimultaneousCollision(min_pos) {
-
-    // if min_pos happens to be positive, then we have a collision,
-    // and we should collect all equivalent collisions.
-    if (min_pos[1] == 0.0) {
-	console.log("This is almost certainly an error condition.");
-    } else
-    if (min_pos[1] > 0) {
-	// we now need to find all collisions of the same transit_time
-	var similars = []
-	for(var i = 0; i < transit_time.length; i++) {
-	    if (min_pos[1] == transit_time[i]) {
-		// We can probably figure everything out just from the indexes...
-		// a run straight run represents multiple simultaneous collisions
-		similars.push(i);
-	    }
-	}
-	return similars;	
-    } else {
-	// we have a system which will never have a collision
-	return [];
-    }
-}
-
-function computeTotalEnergy(psys) {
+function computeKineticEnergy(psys) {
     var energy = 0.0;
     for(var i = 0; i < psys.length; i++) {
 	var a = psys[i];
@@ -220,13 +314,19 @@ function runForward(psys,tt) {
     }
 }
 
-function nextCollision() {
+// TODO: It is now time to add in
+// "energetic" (non-elastic) interactions.
+// In particular, we would like to start with
+// from an actual rocket ejection
+function nextInteraction() {
     // Compute the next collision
     var psys = physical_system;
-    var transit_time = computeNextCollision(psys);
+    var transit_time = computeNextInteraction(psys);
 
     if (transit_time <= 0) {
 	console.log("transit_time: "+transit_time);
+	stopAnimation();
+	
 	alert("No more collisions!");
 	return;
     }
@@ -249,7 +349,7 @@ function nextCollision() {
     for(var i = 0; i < npsys.length-1; i++) {
 	var a = npsys[i];
 	var b = npsys[i+1];
-	var TE = computeTotalEnergy(npsys);	
+	var TE = computeKineticEnergy(npsys);	
 	if (close(a.x,b.x,1e-10)) {
 	    console.log("collision: "+i+" "+(i+1));
 	    // we need to perform an elastic collision here....
@@ -260,22 +360,22 @@ function nextCollision() {
 	    a.v = va;
 	    b.v = vb;
 	}
-	var NTE = computeTotalEnergy(npsys);
+	var NTE = computeKineticEnergy(npsys);
 	if (!close(TE,NTE,1e-8)) {
 	    debugger;
 	}
-	console.log("TE, NTE : "+ TE +" , "+NTE);	
     }
 
     runForward(npsys,1e-6);
-    console.log(psys);
-    console.log(npsys);
     physical_system = npsys;
+    var KE = computeKineticEnergy(npsys);
+    $("#kineticenergy").text(''+ parseFloat(Math.round(KE * 100) / 100).toFixed(2));
+
     
     $("#playground").empty();
     
     draw_system(physical_system);
-//    alert(computeTotalEnergy(physical_system));
+
 }
 
 // The idea here is to draw the complete system.
@@ -285,6 +385,8 @@ function nextCollision() {
 // Width = Mass.  Area = Momentum.  Then you can draw
 // A momentum diagram usefully on a 2-D canvas.
 function draw_system(psys) {
+    
+    $("#playground").empty();
     
     var margin = {top: 30, right: 70, bottom: 30, left: 70},
 	//	width = 960 - margin.left - margin.right,
@@ -385,19 +487,12 @@ function draw_system(psys) {
 	var base = (p.v < 0) ? y(0.0) : y(p.v);
 	var bh = Math.abs(y(p.v) - y(0.0));
 
-	console.log("render: "+i);
-
 	var x_g = x(p.x);
 	var y_g = base;
 	var w_g = hw;
 	// This is a magnitude, not a position, but since we are drawing
 	// from the h = y axis, it makes things better.
 	var h_g = bh;
-
-	console.log(x_g);
-	console.log(y_g);
-	console.log(w_g);
-	console.log(h_g);
 
 	if (h_g != 0) {
         r = svg.append("rect")
@@ -431,9 +526,9 @@ function draw_system(psys) {
 var timerVariable;
 function startAnimation() {
     timerVariable = setInterval(function() {
-	var tt = computeNextCollision(physical_system);
+	var tt = computeNextInteraction(physical_system);
 	if (tt < step_rate) {
-	    nextCollision();
+	    nextInteraction();
 	} else {
 	    runForward(physical_system,step_rate);
 	    $("#playground").empty();	    
@@ -443,8 +538,17 @@ function startAnimation() {
     , step_rate * 1000);
 }
 
-startNewGame();
+function stopAnimation() {
+    clearInterval(timerVariable);
+}
 
-draw_system(physical_system);
+// startNewGame();
+
+// draw_system(physical_system);
+
+var KE = computeKineticEnergy(physical_system);
+
+$("#kineticenergy").text(''+ parseFloat(Math.round(KE * 100) / 100).toFixed(2));
+
 
 </script>
