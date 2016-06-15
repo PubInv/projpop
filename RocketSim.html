@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Agile For Executives: Embrace Change Game</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+  </head>
+<style>
+
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+    display: none;
+}
+
+.row {
+    margin-top: 30px;
+}
+.teamrep {
+ margin: 10px 10px 10px 10px;
+}
+</style>
+  <body>
+    <div class="container">
+
+
+  <div class="page-header">
+    <h1><center>Exploration of Dynamic Energetic Machines</center></h1>
+      </div>
+<div class="row">
+    <div class="col-md-3">
+    <button onclick="startNewGame()">Reset</button>
+    </div>
+    <div class="col-md-3">
+    <button onclick="nextInteraction()">Next Interaction</button>
+    </div>
+    <div class="col-md-3">
+    <button onclick="startAnimation()">startAnimation</button>
+    </div>
+    <div class="col-md-3">
+    <button onclick="stopAnimation()">stopAnimation</button>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+    <button onclick="singleProjectile()">Single Projectile</button>
+    </div>
+    <div class="col-md-3">
+    <button onclick="startSimpleRocket()">Start Simple Rocket</button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+    Kinetic Energy: <span id="kineticenergy"> </span> Joules
+    </div>
+    <div class="col-md-3">
+    Total Energy:<span id="totalenergy"> </span> Joules
+    </div>
+    <div class="col-md-3">
+    Tsiolkovsky Speed:<span id="tsiolkovsky"> </span> m/s
+    </div>
+</div>
+
+      <div  class= "row" id="playground">
+      </div>
+
+<div class="row" id="messagebanner">
+</div>
+    </div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <footer class="footer">
+      <p>
+      <div class="container well">
+        <p class="text-muted">This is an investigation of "rockets" that transfer momentum by throwing "particles" around. <a href="mailto:read.robert@gmail.com">read.robert@gmail.com</a>. 
+	  <a href="https://github.com/PIFAH/projpop">View the Project on GitHub <small>PIFAH/projpop</small></a></p>
+      </div>
+    </footer>
+
+    
+  </body>
+
+    <script>
+
+
+      var physical_system;
+
+      var step_rate = 0.3; // Seconds
+
+// TODO: Let's add a clock here so that we can run forward with
+// with time to make things look pretty and understand it better.
+
+
+
+// The first kind of physical system we will implement is a linear set of particles
+// that provide no jumps.  Particles have a mass and are on the x axis. Particles
+// have a mass and a velocity.
+
+// Initialize our physical system.
+// Note that this must remain sorted by position!
+
+function initialThreeMassSystem() {
+    var system = [
+		    { x: -1.0,
+		      m: 10.0,
+		      v: 0.0,
+		      c: "cyan"},
+		   { x: 0.0,
+		     m: 1.0,
+		     v: 1.0,
+		     c: "blue"},
+		   // { x: 0.8,
+		   //   m: 1.0,
+		   //   v: 0.0,
+		   //   c: "red"},
+		    { x: 1.0,
+		      m: 10.0,
+		      v: 0.0,
+		      c: "green"},
+		 ];
+    return system;
+}
+
+// Compute Tsiolkovsky 
+function tsiolkovsky(m0,mf,ve) {
+    return ve*Math.log(m0/mf);
+}
+// This computes the Velocity of a Tsiolkovsky Rocket
+// that has Total Energy (propellant + rocket] or te
+function tsiolkovskyFromEnergy(te,m0,mf) {
+    var mp = m0 - mf;
+    var ve = Math.sqrt(2*te/
+		       (mp + mf * Math.log(m0/mf)*Math.log(m0/mf))
+		      );
+    return tsiolkovsky(m0,mf,ve);
+}
+
+function simpleRocket() {
+    var m0 = 11;
+    var mp = 1;
+    var mf = m0 - mp;
+    var system = [
+		    { x: -1.0,
+		      m: 10.0,
+		      v: 0.0,
+		      c: "cyan"},
+		   { x: 0.99,
+		     m: mp,
+		     v: 1.0,
+		     c: "blue"},
+		    { x: 1.0,
+		      m: mf,
+		      v: 0.0,
+		      c: "green"},
+    ];
+    // Now let us set the tsiolkovsky velocity in this circumstance...
+    // I think this is right, but let me do it differently
+    var ke =  computeKineticEnergy(system);
+    var rv =  tsiolkovskyFromEnergy(ke,m0,mf);
+    $("#tsiolkovsky").text(''+ parseFloat(Math.round(rv * 100) / 100).toFixed(2));
+    return system;
+}
+
+
+function simpleRocketWithVe() {
+    var m0 = 11;
+    var mp = 1;
+    var mf = m0 - mp;
+    var ve = 10.0; // m/s
+    var system = [
+		    { x: -1.0,
+		      m: 300.0,
+		      v: 0.0,
+		      c: "cyan"},
+		   { x: 0.99,
+		     m: mp,
+		     v: -ve,
+		     c: "blue"},
+		    { x: 1.0,
+		      m: mf,
+		      v: tsiolkovsky(m0,mf,ve),
+		      c: "green"},
+    ];
+    var rv = tsiolkovsky(m0,mf,ve);
+    $("#tsiolkovsky").text(''+ parseFloat(Math.round(rv * 100) / 100).toFixed(2));
+    return system;
+}
+
+
+function simpleRocketWithVe() {
+    var m0 = 11;
+    var mp = 1;
+    var mf = m0 - mp;
+    var ve = 10.0; // m/s
+    var system = [
+		    { x: -1.0,
+		      m: 300.0,
+		      v: 0.0,
+		      c: "cyan"},
+		   { x: 0.99,
+		     m: mp,
+		     v: -ve,
+		     c: "blue"},
+		    { x: 1.0,
+		      m: mf,
+		      v: tsiolkovsky(m0,mf,ve),
+		      c: "green"},
+    ];
+    var rv = tsiolkovsky(m0,mf,ve);
+    $("#tsiolkovsky").text(''+ parseFloat(Math.round(rv * 100) / 100).toFixed(2));
+    return system;
+}
+
+
+function startNewGame() {
+    physical_system = initialThreeMassSystem();
+}
+
+function singleProjectile() {
+    physical_system = initialThreeMassSystem();
+    draw_system(physical_system);
+}
+
+function startSimpleRocket() {
+    physical_system = simpleRocketWithVe();
+    draw_system(physical_system);
+}
+
+// Return the list of the groups of objects
+// that will be involved in the next collision.
+// Since some collisions may occurs simultaneously,
+// and it is even possible to have N objects collide
+// at the same point, this is perhaps a little trickier than
+// one might expect.
+
+// TODO: This is computing a present collision, which is rather unfortunate!
+// I need to move time forward a bit after each computation to make sure collisions
+// are handeled correctly.
+function computeNextInteraction(psys) {
+    var collisions = [];
+
+    // Since objects must remain in order
+    // in the current system, we need only compute
+    // the transit time between pairs of objects.
+    // If we find a shorte
+    var transit_time = new Array();
+    for(var i = 0; i < psys.length-1; i++) {
+	var a = psys[i];
+	var b = psys[i+1];
+	// Note: if transit_time is not positive, there will be no collision.
+	transit_time[i] = (a.x - b.x) / (b.v - a.v);
+    }
+    // now we want to find all shortest positive transit times...
+    var min_pos = transit_time.reduce(function(acc,cur,idx) {
+	return ((acc[1] < 0.0)|| ((cur < acc[1]) && (cur > 0.0) )) ? [idx,cur] : acc;
+    },[0,transit_time[0]]);
+
+    return min_pos[1];
+}
+
+function computeKineticEnergy(psys) {
+    var energy = 0.0;
+    for(var i = 0; i < psys.length; i++) {
+	var a = psys[i];
+	energy += (0.5 * a.m * a.v * a.v);
+    }
+    return energy;
+}
+
+function close(a,b,tol) {
+    return Math.abs((a - b)) < Math.abs(tol)
+}
+
+function runForward(psys,tt) {
+    for(var i = 0; i < psys.length; i++) {
+	var a = psys[i];
+	a.x += tt*a.v;
+    }
+}
+
+// TODO: It is now time to add in
+// "energetic" (non-elastic) interactions.
+// In particular, we would like to start with
+// from an actual rocket ejection
+function nextInteraction() {
+    // Compute the next collision
+    var psys = physical_system;
+    var transit_time = computeNextInteraction(psys);
+
+    if (transit_time <= 0) {
+	console.log("transit_time: "+transit_time);
+	stopAnimation();
+	
+	alert("No more collisions!");
+	return;
+    }
+
+    // first, we will make a copy of the physical_system
+    var npsys = psys.slice(0);
+    
+        // now we run time up to the next collisions, which
+    // is very clear, if we don't have more than two objects in
+    // a single collision!
+    // The positions are very easy to update, based purely on
+    // velocities.
+    for(var i = 0; i < npsys.length; i++) {
+	var a = npsys[i];
+	a.x += transit_time*a.v;
+    }
+
+    // This code assumes we have not triple collisions yet
+
+    for(var i = 0; i < npsys.length-1; i++) {
+	var a = npsys[i];
+	var b = npsys[i+1];
+	var TE = computeKineticEnergy(npsys);	
+	if (close(a.x,b.x,1e-10)) {
+	    console.log("collision: "+i+" "+(i+1));
+	    // we need to perform an elastic collision here....
+	    // as a simplification this is based only on masses and velocities
+	    var m = a.m + b.m;
+	    vb = (2 * a.m * a.v / m) - ((a.m - b.m) * b.v / m);
+	    va = ((a.m - b.m) * a.v / m) + (2 * b.m * b.v / m);
+	    a.v = va;
+	    b.v = vb;
+	}
+	var NTE = computeKineticEnergy(npsys);
+	if (!close(TE,NTE,1e-8)) {
+	    debugger;
+	}
+    }
+
+    runForward(npsys,1e-6);
+    physical_system = npsys;
+    var KE = computeKineticEnergy(npsys);
+    $("#kineticenergy").text(''+ parseFloat(Math.round(KE * 100) / 100).toFixed(2));
+
+    
+    $("#playground").empty();
+    
+    draw_system(physical_system);
+
+}
+
+// The idea here is to draw the complete system.
+// This may benefit from creativity.
+// One idea here is to create a "Momentum Area Diagram"/
+// The idea is to have height = velicity.
+// Width = Mass.  Area = Momentum.  Then you can draw
+// A momentum diagram usefully on a 2-D canvas.
+function draw_system(psys) {
+    
+    $("#playground").empty();
+    
+    var margin = {top: 30, right: 70, bottom: 30, left: 70},
+	//	width = 960 - margin.left - margin.right,
+	width = 700 - margin.left - margin.right,
+	height = 500 - margin.top - margin.bottom;
+
+
+    var svg = d3.select("#playground").append("svg")
+        .attr("margin-left",margin.left)
+	.attr("width", width + margin.left + margin.right)
+	.attr("height", height + margin.top + margin.bottom)
+	.append("g")
+	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+    // First, let's compute the maximum and Minimum x.
+    // Find the extremely x and y.    
+    var max_obj = psys.reduce(function(acc,obj) {
+	return (obj.x > acc.x) ? obj : acc;
+    });
+
+    var min_obj = psys.reduce(function(acc,obj) {
+	return (obj.x < acc.x) ? obj : acc;
+    });
+    
+    // Let's compute maximum and minimum Velocity, we will base Y on this.
+    var max_vel_obj = psys.reduce(function(acc,obj) {
+	return (obj.v >= acc.v) ? obj : acc;
+    });
+    var min_vel_obj = psys.reduce(function(acc,obj) {
+	return (obj.v < acc.v) ? obj : acc;
+    });
+    
+    var total_mass = psys.reduce(function(acc,obj) {
+	return acc+obj.m;
+    },0);
+
+    console.log(total_mass);
+    
+    console.log(max_obj.x);
+    console.log(min_obj.x);
+    
+    // Now we need to create scales.....
+
+    var x = d3.scale.linear()
+	.range([margin.left,width-margin.right])
+	.domain([min_obj.x, max_obj.x]);
+
+    var y = d3.scale.linear()
+        .range([height-margin.top,0])
+    	.domain([min_vel_obj.v, max_vel_obj.v]);
+    
+    var xAxis = d3.svg.axis()
+	.scale(x)
+	.orient("bottom");
+
+    var yAxis = d3.svg.axis()
+	.scale(y)
+	.orient("left")
+	.ticks(10)
+    ;
+    
+
+    svg.append("g").call(xAxis).attr("transform","translate(" + 0 + "," + -margin.top + ")");
+    svg.append("g").call(yAxis).attr("transform","translate(" + -5 + "," + 0 + ")");
+
+    svg.append("svg:rect")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("stroke", "#000")
+            .attr("stroke-width", 1)
+        .attr("fill", "none");
+
+    
+    svg.append("line")          // attach a line
+	.style("stroke","blue")
+	.attr("x1", x(min_obj.x))     // x position of the first end of the line
+	.attr("y1", y(0))      // y position of the first end of the line
+	.attr("y2", y(0))      // y position of the first end of the line    
+	.attr("x2", x(max_obj.x))     // x position of the second end of the line
+    ;
+
+    // Find sigma momentum.
+    // Need to figure how how much of x axis represents a mass. Let's draw 50% as mass.
+    // So every mass gets a fraction of this as a width.
+    // The extreme positions must be epanded to fit into this space.
+    for(var i = 0; i < psys.length; i++) {
+	var p = psys[i];
+	var w = 0.2 * width * (p.m/(total_mass) );
+	var hw = w/2;
+	var h = p.v;
+	var hh = h / 2;
+	
+	// If the velocity is positive, we want to draw from the x axis up.
+	// If negative, we want to draw from the x axis down.
+	// This is in momentum space coords.
+	var base = (p.v < 0) ? y(0.0) : y(p.v);
+	var bh = Math.abs(y(p.v) - y(0.0));
+
+	var x_g = x(p.x);
+	var y_g = base;
+	var w_g = hw;
+	// This is a magnitude, not a position, but since we are drawing
+	// from the h = y axis, it makes things better.
+	var h_g = bh;
+
+	if (h_g != 0) {
+        r = svg.append("rect")
+	    .attr("x", x_g)
+            .attr("y", y_g)
+            .attr("width", w_g)
+            .attr("height", h_g)
+		.attr("fill",p.c);
+	} else {
+            r = svg.append("circle")
+		.attr("cx", x_g)
+		.attr("cy", y(0.0))
+		.attr("r", 10)
+		.attr("fill",p.c);
+	}
+
+	svg.append('text')
+	    .text(''+ parseFloat(Math.round(p.v * 100) / 100).toFixed(2) + "m/s")
+	    .attr('x', x_g)
+	    .attr('y', y_g);
+	
+	svg.append('text')
+	    .text(''+ parseFloat(Math.round(p.m * 100) / 100).toFixed(2) + "kg")
+	    .attr('x', x_g)
+	    .attr('y', y_g+25);
+    }
+
+    return svg;
+};
+
+var timerVariable;
+function startAnimation() {
+    timerVariable = setInterval(function() {
+	var tt = computeNextInteraction(physical_system);
+	if (tt < step_rate) {
+	    nextInteraction();
+	} else {
+	    runForward(physical_system,step_rate);
+	    $("#playground").empty();	    
+	}
+	draw_system(physical_system);
+    }
+    , step_rate * 1000);
+}
+
+function stopAnimation() {
+    clearInterval(timerVariable);
+}
+
+// startNewGame();
+
+// draw_system(physical_system);
+
+var KE = computeKineticEnergy(physical_system);
+
+$("#kineticenergy").text(''+ parseFloat(Math.round(KE * 100) / 100).toFixed(2));
+
+
+</script>
