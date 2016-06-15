@@ -58,11 +58,14 @@
     <h1><center>Exploration of Dynamic Energetic Machines</center></h1>
       </div>
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-3">
     <button onclick="startNewGame()">Reset</button>
     </div>
-    <div class="col-md-8">
+    <div class="col-md-6">
     <button onclick="nextCollision()">Next Collision</button>
+    </div>
+    <div class="col-md-9">
+    <button onclick="startAnimation()">startAnimation</button>
     </div>
 
 </div>
@@ -92,7 +95,9 @@
     <script>
 
 
-var physical_system;
+      var physical_system;
+
+      var step_rate = 0.1; // Seconds
 
 // TODO: Let's add a clock here so that we can run forward with
 // with time to make things look pretty and understand it better.
@@ -116,10 +121,10 @@ function initialThreeMassSystem() {
 		     m: 0.1,
 		     v: 1.0,
 		     c: "blue"},
-		   { x: 0.8,
-		     m: 1.0,
-		     v: 0.0,
-		     c: "red"},
+		   // { x: 0.8,
+		   //   m: 1.0,
+		   //   v: 0.0,
+		   //   c: "red"},
 		    { x: 1.0,
 		      m: 10.0,
 		      v: 0.0,
@@ -408,11 +413,35 @@ function draw_system(psys) {
 		.attr("r", 10)
 		.attr("fill",p.c);
 	}
+
+	svg.append('text')
+	    .text(''+ parseFloat(Math.round(p.v * 100) / 100).toFixed(2) + "m/s")
+	    .attr('x', x_g)
+	    .attr('y', y_g);
 	
+	svg.append('text')
+	    .text(''+ parseFloat(Math.round(p.m * 100) / 100).toFixed(2) + "kg")
+	    .attr('x', x_g)
+	    .attr('y', y_g+25);
     }
 
     return svg;
 };
+
+var timerVariable;
+function startAnimation() {
+    timerVariable = setInterval(function() {
+	var tt = computeNextCollision(physical_system);
+	if (tt < step_rate) {
+	    nextCollision();
+	} else {
+	    runForward(physical_system,step_rate);
+	    $("#playground").empty();	    
+	}
+	draw_system(physical_system);
+    }
+    , step_rate * 1000);
+}
 
 startNewGame();
 
